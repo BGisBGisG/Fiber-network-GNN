@@ -1,6 +1,19 @@
-# Mechanics-informed graph learning of the axial stress in fibrin networks
+# Mechanics-informed graph learning predicts axial stress in fibrin networks
 
-Code for the paper "Mechanics-informed graph learning predicts axial stress in fibrin networks".
+Beikang Gu<sup>1</sup>, Kun Jiang<sup>1</sup>, Yuhang Cao<sup>1</sup>, Yanyu Chen<sup>1</sup>, Kenan Song<sup>1</sup>,
+Xiaowei Zeng<sup>2</sup>, Yong Wei<sup>3,*</sup>, He Li<sup>4,*</sup> and Xianqiao Wang<sup>1</sup>
+
+<sup>1</sup> School of Environmental, Civil, Agricultural and Mechanical Engineering, College of Engineering, University of Georgia, Athens, GA 30602  
+<sup>2</sup> Department of Mechanical, Aerospace & Industrial Engineering, University of Texas at San Antonio, San Antonio, TX 78249  
+<sup>3</sup> Department of Computer Science and Cybersecurity, University of North Georgia, Dahlonega, GA 30597  
+<sup>4</sup> School of Chemical, Materials and Biomedical Engineering, College of Engineering, University of Georgia, Athens, GA 30602  
+<sup>*</sup> Corresponding authors
+
+## Acknowledgment and contribution of Prof. Yong Wei
+
+### The graph neural network algorithm and code of this work, i.e. the CEAL-WF model and the training program in `4_training/`, were provided by Prof. Yong Wei (Department of Computer Science and Cybersecurity, University of North Georgia). We sincerely thank Prof. Wei for this contribution.
+
+This repository holds the code of the paper.
 It covers the complete workflow of the heterogeneous dataset (called Tier 4 in the paper):
 
 1. generation of the random fibrin networks (MATLAB),
@@ -25,9 +38,9 @@ equivalent to the one of the paper but not identical to it.
 
 ```
 1_generate_networks/   generate_networks.m and its functions
-2_simulation/          LAMMPS input (IN3), run_all.sh and the potential tables (potential/)
+2_simulation/          LAMMPS input (IN3), run_all.sh and the script that writes the potential tables (potential/)
 3_dataset/             build_dataset.py
-4_training/            training code (run_training.py is the main program, config_1.py holds the settings)
+4_training/            graph neural network code by Yong Wei (run_training.py is the main program, config_1.py holds the settings)
 runs/                  created by step 1; one folder per network
 ```
 
@@ -51,9 +64,16 @@ Every network gets its own folder `runs/<runname>/<group>`, where `group = junct
 
 ## Step 2. Run the simulations
 
-`2_simulation/potential/` holds the tabulated potentials: `f1T` to `f16T` are the stretching tables of the 16 diameter
-classes and `f1C` to `f16C` the contact tables (the input uses `f1C` for all pairs). `fibrin_potentialf.m` is the MATLAB
-script that writes tables of this form.
+The tabulated potentials are not stored in the repository because of their size (1.2 GB). Write them once with MATLAB,
+inside `2_simulation/potential`:
+
+```
+matlab -batch fibrin_potentialf
+```
+
+This gives `f1T` to `f16T` (stretching tables of the 16 diameter classes), `f1C` to `f16C` (contact tables; the input
+uses `f1C` for all pairs) and `EI` (the bending coefficients, which are already entered as `angle_coeff` in `IN3`).
+The script reproduces the tables used for the paper exactly.
 
 Every network is one LAMMPS run in its own folder:
 
@@ -98,6 +118,8 @@ The paper uses 0.5 for the reference model and 0.25 for the comparisons between 
 `--keep 1` keeps all graphs.
 
 ## Step 4. Train
+
+The model and the training program in `4_training/` were written by Yong Wei.
 
 Open `4_training/config_1.py` and check the junction counts used for training, validation and testing
 (`_TRAIN_N`, `_VAL_N`, `_TEST_N`; the paper uses 50-80, 81-90 and 91-100). Then run, inside `4_training`,
