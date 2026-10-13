@@ -1,0 +1,153 @@
+variable route index ../../../2_simulation/potential/
+variable basictimesteprun equal 1e-8
+variable breakpointfraction equal 2
+variable timesteprun equal 5e-9
+variable sr equal v_basictimesteprun/v_timesteprun*100
+variable so equal v_sr*50
+variable bkpf equal (v_breakpointfraction+1)*1e-7
+
+units si
+atom_style molecular
+boundary p p p
+neighbor 5e-6 bin
+neigh_modify every 1 delay 0 check yes
+comm_modify cutoff 2.0e-6 vel yes
+read_data voc2.data
+
+region a block -0.3e-6 -0.2e-6 INF INF INF INF units box
+region b block 39.5e-6 40.3e-6 INF INF INF INF units box
+
+group a region a
+group b region b
+group m subtract all a b
+group f union a b
+
+pair_style table linear 100000
+pair_coeff * * ${route}f1C CONTACT
+special_bonds lj 0.0 0.0 0.0
+
+bond_style table linear 1000000
+bond_coeff 1 ${route}f1T STRETCH
+bond_coeff 2 ${route}f2T STRETCH
+bond_coeff 3 ${route}f3T STRETCH
+bond_coeff 4 ${route}f4T STRETCH
+bond_coeff 5 ${route}f5T STRETCH
+bond_coeff 6 ${route}f6T STRETCH
+bond_coeff 7 ${route}f7T STRETCH
+bond_coeff 8 ${route}f8T STRETCH
+bond_coeff 9 ${route}f9T STRETCH
+bond_coeff 10 ${route}f10T STRETCH
+bond_coeff 11 ${route}f11T STRETCH
+bond_coeff 12 ${route}f12T STRETCH
+bond_coeff 13 ${route}f13T STRETCH
+bond_coeff 14 ${route}f14T STRETCH
+bond_coeff 15 ${route}f15T STRETCH
+bond_coeff 16 ${route}f16T STRETCH
+
+angle_style cosine/delta
+angle_coeff 1 6.782071571634261e-15 180
+angle_coeff 2 5.651726309695216e-15 180
+angle_coeff 3 4.844336836881615e-15 180
+angle_coeff 4 4.238794732271412e-15 180
+angle_coeff 5 3.767817539796812e-15 180
+angle_coeff 6 3.391035785817130e-15 180
+angle_coeff 7 3.082759805288300e-15 180
+angle_coeff 8 2.825863154847608e-15 180
+angle_coeff 9 2.608489066013177e-15 180
+angle_coeff 10 2.422168418440807e-15 180
+angle_coeff 11 2.260690523878086e-15 180
+angle_coeff 12 2.119397366135706e-15 180
+angle_coeff 13 1.994726932833606e-15 180
+angle_coeff 14 1.883908769898405e-15 180
+angle_coeff 15 1.784755676745858e-15 180
+angle_coeff 16 1.695517892908565e-15 180
+
+compute s1 all stress/atom NULL
+compute s2 all reduce sum c_s1[1]
+compute bondInfo all property/local btype batom1 batom2
+
+variable stress equal c_s2/vol
+
+shell mkdir cfg
+
+thermo 1000
+thermo_style custom step temp bonds
+thermo_modify lost ignore flush yes
+
+reset_timestep 0
+velocity all create 10 4928459 dist gaussian
+fix 4 m nve
+fix 5 m langevin 9.9 9.9 10 498094
+fix 5w m temp/rescale 1 1 1 1 1.0
+
+timestep 1e-25
+run 1000
+timestep 1e-15
+run 1000
+timestep 1e-12
+run 1000
+timestep 1e-10
+run 1000
+timestep 1e-9
+run 1000
+unfix 5w
+fix 5w m temp/rescale 1 4800 4800 4800.01 1.0
+
+timestep ${timesteprun}
+run 50000
+
+fix bk1 m bond/break 5 1 1.5e-07 prob 0.9 143
+fix bk2 m bond/break 5 2 1.8e-07 prob 0.9 143
+fix bk3 m bond/break 5 3 2.1e-07 prob 0.9 143
+fix bk4 m bond/break 5 4 2.4e-07 prob 0.9 143
+fix bk5 m bond/break 5 5 2.7e-07 prob 0.9 143
+fix bk6 m bond/break 5 6 3e-07 prob 0.9 143
+fix bk7 m bond/break 5 7 3.3e-07 prob 0.9 143
+fix bk8 m bond/break 5 8 3.6e-07 prob 0.9 143
+fix bk9 m bond/break 5 9 3.9e-07 prob 0.9 143
+fix bk10 m bond/break 5 10 4.2e-07 prob 0.9 143
+fix bk11 m bond/break 5 11 4.5e-07 prob 0.9 143
+fix bk12 m bond/break 5 12 4.8e-07 prob 0.9 143
+fix bk13 m bond/break 5 13 5.1e-07 prob 0.9 143
+fix bk14 m bond/break 5 14 5.4e-07 prob 0.9 143
+fix bk15 m bond/break 5 15 5.7e-07 prob 0.9 143
+fix bk16 m bond/break 5 16 6e-07 prob 0.9 143
+unfix 5w
+fix 5w m temp/rescale 1 6000 6000 6000.01 1.0
+
+variable ss1 equal f_bk1[1]+f_bk2[1]+f_bk3[1]+f_bk4[1]+f_bk5[1]+f_bk6[1]+f_bk7[1]+f_bk8[1]+f_bk9[1]+f_bk10[1]+f_bk11[1]+f_bk12[1]+f_bk13[1]+f_bk14[1]+f_bk15[1]+f_bk16[1]
+variable ss2 equal f_bk1[2]+f_bk2[2]+f_bk3[2]+f_bk4[2]+f_bk5[2]+f_bk6[2]+f_bk7[2]+f_bk8[2]+f_bk9[2]+f_bk10[2]+f_bk11[2]+f_bk12[2]+f_bk13[2]+f_bk14[2]+f_bk15[2]+f_bk16[2]
+variable ss2o equal ${ss2}
+variable stp equal step
+variable llx equal lx
+variable ox equal ${llx}
+variable strain equal (v_llx-v_ox)/v_ox
+
+thermo 1000
+reset_timestep 0
+thermo_style custom step temp lx ly lz v_strain bonds ke pe ebond eangle v_ss1 v_ss2
+thermo_modify lost ignore flush yes
+fix kinematics all deform 1 x vel 0.0075 y volume z volume
+
+variable dop equal 10000
+
+dump du all custom ${dop} cfg/*.d id type x y z c_s1[*]
+dump bd all local ${dop} cfg/*.b index c_bondInfo[*]
+
+run 0
+variable k1 equal ke
+variable p1 equal pe
+variable eb1 equal ebond
+variable ea1 equal eangle
+variable lx1 equal lx
+variable ly1 equal ly
+variable lz1 equal lz
+variable waitstep equal 150000
+fix extra all print 10 "${stp} ${strain} ${stress} ${ss1} ${ss2} ${k1} ${p1} ${eb1} ${ea1}" file informationinthesimulation screen no title "stp strain stress ss1 ss2 k1 p1 eb1 ea1"
+
+label start
+if "${strain} > 6" then "jump SELF break" "write_restart restart.file"
+run 5
+if "${ss2} != ${ss2o}" then "unfix kinematics" "run ${waitstep}" "fix kinematics all deform 1 x vel 0.0075 y volume z volume" "variable ss2o equal ${ss2}"
+jump SELF start
+label break
