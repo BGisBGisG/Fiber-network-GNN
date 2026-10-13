@@ -27,7 +27,7 @@ stretching_potential = append(name,'T');
 k1 = sqrt(2)*kB*T*Np^(3/2)/(lp*(mu+1));
 k2 = Np*kp/(mu + 1);
 
-length = linspace(dl/1e8,10*dl,100000);
+length = linspace(dl/1e8,10*dl,1000000);
 ep = (length - dl)/dl;
 
 epprime = (1/2)*(ep + ...
@@ -70,7 +70,7 @@ compression_potential =append(name, 'C');
 R=dl/2;
 ES_bar = sqrt(2)*kB*T*(pi*R^2*(np0-2*(np0-nps)*(R/Rs)^a/(2+a)))^(3/2)/(pi*R^2*lp*(mu+1));
 Reff = R^2/(2*R);
-Rij = linspace(1e-10*R,2*R,100000);
+Rij = linspace(1e-20*R,2*R,100000);
 delta = 2*R - Rij;
 ES_eff = (2*(1-nu^2)/(ES_bar))^-1;
 Pic = 8*ES_eff*sqrt(Reff)*(2*R-Rij).^(5/2)/15;
