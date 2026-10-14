@@ -41,6 +41,7 @@ equivalent to the one of the paper but not identical to it.
 2_simulation/          LAMMPS input (IN3), run_all.sh and the script that writes the potential tables (potential/)
 3_dataset/             build_dataset.py
 4_training/            graph neural network code by Yong Wei (run_training.py is the main program, config_1.py holds the settings)
+5_trained_model/       trained CEAL-WF model of the heterogeneous dataset (Tier 4 in the paper)
 runs/                  created by step 1; one folder per network
 ```
 
@@ -137,6 +138,27 @@ python run_training.py --numLayers 2 --batch_size 128 --out_channels 100 --dropo
 
 The trained model, the normalization constants, the training history and the predictions for the test set are written
 to `4_training/Results/`.
+
+## Trained model
+
+`5_trained_model/` holds the CEAL-WF model of the heterogeneous dataset that is reported in the paper (Tier 4: two layers,
+hidden width 100, 117,372 parameters, trained on the networks with 50-80 junctions with half of their snapshots):
+
+- `tier4_ceal_wf_model.pt`: the weights (PyTorch state dict),
+- `tier4_ceal_wf_model_para.json` and `tier4_ceal_wf_hyper_parameters.json`: the settings with which the model is rebuilt,
+- `tier4_ceal_wf_normalization.json`: the means and standard deviations of the node feature, the edge attributes and the
+  stress with which the inputs and the output are standardized.
+
+To evaluate it on the test networks (91-100 junctions) of a dataset built in step 3, run, inside `4_training`,
+
+```
+DATASET_NAME=Data_0.5 python evaluate_model.py
+```
+
+The script prints the number of test graphs, the MAE, the MAPE and R2. On the test set of the paper the MAE is 51.0 Pa with
+half of the snapshots (142,658 graphs) and 51.2 Pa with a quarter of the snapshots (71,307 graphs); a newly generated
+dataset gives a similar but not identical value. The other trained models of the paper are available from the
+corresponding authors on request.
 
 ## A small test of the whole workflow
 
