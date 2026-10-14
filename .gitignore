@@ -1,0 +1,9 @@
+runs/
+2_simulation/potential/f*T
+2_simulation/potential/f*C
+2_simulation/potential/EI
+4_training/dataset/
+4_training/Results/
+4_training/*.out
+__pycache__/
+*.pyc
